@@ -1,6 +1,6 @@
 # CVE-2026-43499 - Galaxy S22 Ultra
 
-<video src="assets/showcase.mp4" controls width="100%"></video>
+https://github.com/sarabpal-dev/IonStack-S22U/raw/main/assets/showcase.mp4
 
 
 This repository contains a device-specific port of the CVE-2026-43499
