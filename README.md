@@ -1,10 +1,10 @@
-# CVE-2026-43499 - Galaxy S22 Ultra
+# CVE-2026-43499 - Galaxy S22 Ultra and S22
 
 https://github.com/user-attachments/assets/f3d0858d-f8f5-444f-8ae5-541c2bc744c3
 
 
 This repository contains a device-specific port of the CVE-2026-43499
-exploit for the Samsung Galaxy S22 Ultra (SM-S908W).
+exploit for the Samsung Galaxy S22 Ultra (SM-S908W) and S22 (SM-S901W).
 
 ## Supported target
 
@@ -19,8 +19,19 @@ Kernel: 5.10.226-android12-9-30958166-abS908WVLS8FYG7
 Architecture: aarch64
 ```
 
+```text
+Device: Samsung Galaxy S22 (SM-S901W)
+Codename: r0q
+Android: 14 / SDK 34
+Build number: UP1A.231005.007.S901WVLS4DWL3
+Build display ID: UP1A.231005.007.S901WVLS4DWL3
+Build fingerprint: samsung/r0qcsx/r0q:14/UP1A.231005.007/S901WVLS4DWL3:user/release-keys
+Kernel: 5.10.168-android12-9-27760517-abS901WVLS4DWL3
+Architecture: aarch64
+```
+
 The offsets and structure layouts in this repository are specific to the
-firmware above. Other models and firmware builds are not supported by this
+firmwares above. Other models and firmware builds are not supported by this
 target profile.
 
 ## Reference source
@@ -38,9 +49,11 @@ The upstream Apache License 2.0 is retained in [LICENSE](LICENSE).
 
 ## Main porting changes
 
-- Ported exploit from v6.6 kernel (Galaxy S25 Ultra) to Android v5.10 kernel (Galaxy S22 Ultra / b0q).
+- Ported exploit from v6.6 kernel (Galaxy S25 Ultra) to Android v5.10 kernel (Galaxy S22 Ultra / b0q)/(Galaxy S22 / r0q)
 - Added the `b0q` / `S908WVLS8FYG7` target offsets (`src/targets/S908WVLS8FYG7/target.h`) and kernel structure layouts.
+- Added the `r0q` / `S901WVLS4DWL3` target offsets (`src/targets/S901WVLS4DWL3/target.h`) and kernel structure layouts.
 - Replaced the pselect race with the `exp32` route: futex choreography, 32-bit stack stamp, and `sched_setattr` run in an embedded 32-bit child stage (`src/exp32/`).
+- Replaced the `exp32` route with the `exp64` route specifically for the `S901W` as the 32 bit path is dead, `ENOSYS`, the 32 bit path must have been added later.
 - Added tracefs-based automatic KASLR slide recovery for the Samsung kernel.
 - Ported fake PI waiter/task layout, CFI/FOPS stage, and physical read/write primitive for v5.10.
 - Added a KDP-safe `system_unbound_wq` user-mode-helper root path and updated runtime SELinux enforcement target to `selinux_state.enforcing`.
@@ -59,6 +72,9 @@ Set `ANDROID_NDK_HOME` to Android NDK r27+ or a compatible toolchain, then run:
 
 ```sh
 make PROJECT=S908WVLS8FYG7 clean preload root-helper
+```
+```sh
+make PROJECT=S901WVLS4DWL3 clean preload root-helper
 ```
 
 To build for a QEMU environment running the Android kernel with a Buildroot filesystem:
@@ -85,6 +101,8 @@ adb push build/S908WVLS8FYG7/bin/cve-2026-43499-root /data/local/tmp/cve-2026-43
 adb push build/S908WVLS8FYG7/bin/cve-exp32 /data/local/tmp/cve-exp32
 adb shell chmod 755 /data/local/tmp/cve-2026-43499 /data/local/tmp/cve-2026-43499-root /data/local/tmp/cve-exp32
 ```
+**This can also be done without the use of a PC in termux right on your phone. Just make sure you have NDK which can easily be found on github. I find it much easier doing everything on my phone rather than having to plug in my phone and feel it's a waste of time when most things these days can be done locally. You shouldnt need instructions on how to do everything above, just use shizuku or adb and a file explorer that supports shizuku like mixplorer or use the commandline to copy everything to** `/data/local/tmp`
+
 
 ## Run
 
