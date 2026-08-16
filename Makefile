@@ -108,19 +108,23 @@ endif
 # syscall path (see src/exp32/).  Built once, embedded via exp32_blob.S.
 EMBEDDIR ?= build/embed
 EMBED_EXP32 := $(EMBEDDIR)/cve_exp32_arm32
-EXP32_SRCS := src/exp32/main.c src/exp32/stack.c
+EXP32_SRCS := \
+  $(call pick_src,exp32/main.c) \
+  $(if $(wildcard $(TARGET_DIR)/stack.c),$(TARGET_DIR)/stack.c,$(call pick_src,exp32/stack.c))
 
 API32 ?= 28
 NDK_CC32 := $(NDK_TOOLCHAIN)/bin/armv7a-linux-androideabi$(API32)-clang
 HOST_CC32 ?= arm-linux-gnueabi-gcc
 
+TARGET_CFLAGS := -DTARGET_CONFIG_H=\"targets/$(PROJECT)/target.h\" -I$(TARGET_DIR)
+
 ifeq ($(shell command -v $(HOST_CC32) >/dev/null 2>&1 && echo yes),yes)
   EXP32_CC := $(HOST_CC32)
-  EXP32_CFLAGS := -O2 -g0 -Wall -Isrc -static -pthread
+  EXP32_CFLAGS := -O2 -g0 -Wall -Isrc $(TARGET_CFLAGS) -static -pthread
   EXP32_LDFLAGS := -static -pthread
 else ifneq ($(wildcard $(NDK_CC32)),)
   EXP32_CC := $(NDK_CC32)
-  EXP32_CFLAGS := -O2 -g0 -Wall -Isrc -fPIE -pthread \
+  EXP32_CFLAGS := -O2 -g0 -Wall -Isrc $(TARGET_CFLAGS) -fPIE -pthread \
     -Wno-unused-parameter -Wno-unused-function
   EXP32_LDFLAGS := -static -pie -pthread
 else

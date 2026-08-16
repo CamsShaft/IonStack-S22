@@ -6,3 +6,13 @@ buildroot-tc/
 *.o
 *.so
 *.a
+
+# Python
+__pycache__/
+*.pyc
+
+# Generator intermediates
+target_generator/kallsyms
+target_generator/kallsyms.txt
+target_generator/config.txt
+
